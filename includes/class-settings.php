@@ -5,9 +5,7 @@
  * @package Newspack
  */
 
-namespace Newspack_Network_Node\Admin;
-
-use Newspack_Network_Node\Admin;
+namespace Newspack_Network_Node;
 
 /**
  * Class to handle Node settings page
@@ -33,6 +31,24 @@ class Settings {
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'add_menu' ] );
 		add_filter( 'allowed_options', [ __CLASS__, 'allowed_options' ] );
+	}
+
+	/**
+	 * Get the Hub URL setting
+	 *
+	 * @return ?string
+	 */
+	public static function get_hub_url() {
+		return get_option( 'newspack_node_hub_url' );
+	}
+
+	/**
+	 * Get the Private key setting
+	 *
+	 * @return ?string
+	 */
+	public static function get_private_key() {
+		return get_option( 'newspack_node_private_key' );
 	}
 
 	/**
@@ -85,6 +101,9 @@ class Settings {
 				'key'      => 'newspack_node_private_key',
 				'label'    => esc_html__( 'Private key', 'newspack-network-node' ),
 				'callback' => [ __CLASS__, 'private_key_callback' ],
+				'args'     => [
+					'sanitize_callback' => [ __CLASS__, 'sanitize_private_key' ],
+				],
 			],
 		];
 		foreach ( $settings as $setting ) {
@@ -165,6 +184,25 @@ class Settings {
 	}
 
 	/**
+	 * Tests if the string is a valid private key
+	 *
+	 * @param string $value The value to sanitize.
+	 * @return bool|string
+	 */
+	public static function sanitize_private_key( $value ) {
+		$signed = Webhook::sign( 'test', $value );
+		if ( is_wp_error( $signed ) ) {
+			add_settings_error(
+				'newspack_node_private_key',
+				'newspack_node_private_key',
+				__( 'Invalid Private key:', 'newspack-network-node' ) . ' ' . $signed->get_error_message()
+			);
+			return false;
+		}
+		return $value;
+	}
+
+	/**
 	 * Renders the settings page
 	 *
 	 * @return void
@@ -175,7 +213,6 @@ class Settings {
 			<?php settings_errors(); ?>
 			<form method='post' action='options.php'>
 			<?php 
-				/* 'option_group' must match 'option_group' from register_setting call */
 				do_settings_sections( self::PAGE_SLUG );
 				settings_fields( self::SETTINGS_SECTION );
 			?>
