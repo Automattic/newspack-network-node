@@ -24,7 +24,7 @@ class Webhook {
 	 *
 	 * @var string
 	 */
-	const ENDPOINT_SUFFIX = 'newspack-network-webhook';
+	const ENDPOINT_SUFFIX = 'wp-json/newspack-hub/v1/webhook';
 
 	/**
 	 * Runs the initialization.
@@ -45,7 +45,7 @@ class Webhook {
 		if ( ! class_exists( 'Newspack\Data_Events\Webhooks' ) || ! method_exists( 'Newspack\Data_Events\Webhooks', 'register_system_endpoint' ) ) {
 			return;
 		}
-		\Newspack\Data_Events\Webhooks::register_system_endpoint( self::ENDPOINT_ID, self::get_url(), [], true );
+		\Newspack\Data_Events\Webhooks::register_system_endpoint( self::ENDPOINT_ID, self::get_url(), [ 'reader_registered' ] );
 	}
 
 	/**
@@ -75,6 +75,7 @@ class Webhook {
 			return $data;
 		}
 		$body['data'] = $data;
+		$body['site'] = get_bloginfo( 'url' );
 
 		return $body;
 
