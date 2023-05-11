@@ -42,7 +42,7 @@ class Webhook {
 	 * @return void
 	 */
 	public static function register_endpoint() {
-		if ( ! class_exists( 'Newspack\Data_Events\Webhooks' ) ) {
+		if ( ! class_exists( 'Newspack\Data_Events\Webhooks' ) || ! method_exists( 'Newspack\Data_Events\Webhooks', 'register_system_endpoint' ) ) {
 			return;
 		}
 		\Newspack\Data_Events\Webhooks::register_system_endpoint( self::ENDPOINT_ID, self::get_url(), [], true );
