@@ -45,7 +45,12 @@ class Webhook {
 		if ( ! class_exists( 'Newspack\Data_Events\Webhooks' ) || ! method_exists( 'Newspack\Data_Events\Webhooks', 'register_system_endpoint' ) ) {
 			return;
 		}
-		\Newspack\Data_Events\Webhooks::register_system_endpoint( self::ENDPOINT_ID, self::get_url(), [ 'reader_registered' ] );
+		$events = [
+			'reader_registered',
+			'newspack_node_order_changed',
+			'newspack_node_subscription_changed',
+		];
+		\Newspack\Data_Events\Webhooks::register_system_endpoint( self::ENDPOINT_ID, self::get_url(), $events );
 	}
 
 	/**

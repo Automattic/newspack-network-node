@@ -19,6 +19,7 @@ class Initializer {
 		Admin::init();
 		Settings::init();
 		Webhook::init();
+		Data_Listeners::init();
 	}
 
 }
